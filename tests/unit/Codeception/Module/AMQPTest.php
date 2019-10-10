@@ -20,7 +20,8 @@ class AMQPTest extends \Codeception\PHPUnit\TestCase
 
     public function _setUp()
     {
-        $this->module = new \Codeception\Module\AMQP(make_container());
+        $container = \Codeception\Util\Stub::make('Codeception\Lib\ModuleContainer');
+        $this->module = new \Codeception\Module\AMQP($container);
         $this->module->_setConfig($this->config);
         $res = @stream_socket_client('tcp://localhost:5672');
         if ($res === false) {
