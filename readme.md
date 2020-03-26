@@ -1,6 +1,6 @@
 # AMQP module for Codeception
 
-[![Build Status](https://travis-ci.org/Codeception/module-amqp.svg?branch=master)](https://travis-ci.org/Codeception/module-amqp)
+![Build Status](https://github.com/Codeception/module-amqp/workflows/CI/badge.svg)
 
 ## Installation
 
