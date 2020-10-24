@@ -19,9 +19,6 @@
         "codeception/codeception": "^4.0",
         "php-amqplib/php-amqplib": "^2.10.0"
     },
-    "require-dev": {
-        "codeception/util-robohelpers": "dev-master"
-    },
     "autoload":{
         "classmap": ["src/"]
     },
