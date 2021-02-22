@@ -1,13 +1,24 @@
-# AMQP module for Codeception
+# Codeception Module AMQP
 
-![Build Status](https://github.com/Codeception/module-amqp/workflows/CI/badge.svg)
+An AMQP module for Codeception.
+
+[![Actions Status](https://github.com/Codeception/module-amqp/workflows/CI/badge.svg)](https://github.com/Codeception/module-amqp/actions)
+[![Latest Stable Version](https://poser.pugx.org/codeception/module-amqp/v/stable)](https://github.com/Codeception/module-amqp/releases)
+[![Total Downloads](https://poser.pugx.org/codeception/module-amqp/downloads)](https://packagist.org/packages/codeception/module-amqp)
+[![License](https://poser.pugx.org/codeception/module-amqp/license)](/LICENSE)
 
 ## Installation
 
 ```
-composer require --dev "codeception/module-amqp"
+composer require "codeception/module-amqp" --dev
 ```
 
 ## Documentation
 
-<a href="https://codeception.com/docs/modules/AMQP">Module documentation</a>
+See [the module documentation](https://codeception.com/docs/modules/AMQP).
+
+## License
+
+`Codeception Module AMQP` is open-sourced software licensed under the [MIT](/LICENSE) License.
+
+© Codeception PHP Testing Framework
