@@ -1,4 +1,5 @@
 <?php
+
 namespace Codeception\Module;
 
 use Codeception\Exception\ModuleException;
@@ -10,6 +11,8 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPProtocolChannelException;
 use PhpAmqpLib\Message\AMQPMessage;
+
+use function in_array;
 
 /**
  * This module interacts with message broker software that implements
@@ -56,7 +59,7 @@ class AMQP extends CodeceptionModule implements RequiresPackage
         'vhost'          => '/',
         'cleanup'        => true,
         'single_channel' => false,
-        'queues'         => []
+        'queues'         => [],
     ];
 
     /**
@@ -71,12 +74,15 @@ class AMQP extends CodeceptionModule implements RequiresPackage
 
     protected $requiredFields = ['host', 'username', 'password', 'vhost'];
 
-    public function _requires()
+    public function _requires(): array
     {
-        return ['PhpAmqpLib\Connection\AMQPStreamConnection' => '"php-amqplib/php-amqplib": "~2.4"'];
+        return [AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.10|~3.0"'];
     }
 
-    public function _initialize()
+    /**
+     * @throws ModuleException
+     */
+    public function _initialize(): void
     {
         $host = $this->config['host'];
         $port = $this->config['port'];
@@ -91,7 +97,12 @@ class AMQP extends CodeceptionModule implements RequiresPackage
         }
     }
 
-    public function _before(TestInterface $test)
+    /**
+     * @param TestInterface $test
+     * @throws AMQPProtocolChannelException
+     * @throws ModuleException
+     */
+    public function _before(TestInterface $test): void
     {
         if ($this->config['cleanup']) {
             $this->cleanup();
@@ -111,15 +122,15 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * ```
      *
      * @param string $exchange
-     * @param string|\PhpAmqpLib\Message\AMQPMessage $message
-     * @param string $routing_key
+     * @param string|AMQPMessage $message
+     * @param string|null $routingKey
      */
-    public function pushToExchange($exchange, $message, $routing_key = null)
+    public function pushToExchange(string $exchange, $message, ?string $routingKey = null): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
             : new AMQPMessage($message);
-        $this->getChannel()->basic_publish($message, $exchange, $routing_key);
+        $this->getChannel()->basic_publish($message, $exchange, $routingKey);
     }
 
     /**
@@ -133,9 +144,9 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * ```
      *
      * @param string $queue
-     * @param string|\PhpAmqpLib\Message\AMQPMessage $message
+     * @param string|AMQPMessage $message
      */
-    public function pushToQueue($queue, $message)
+    public function pushToQueue(string $queue, $message): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
@@ -162,30 +173,30 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * @param string $type
      * @param bool $passive
      * @param bool $durable
-     * @param bool $auto_delete
+     * @param bool $autoDelete
      * @param bool $internal
      * @param bool $nowait
      * @param array $arguments
-     * @param int $ticket
+     * @param int|null $ticket
      * @return mixed|null
      */
     public function declareExchange(
-        $exchange,
-        $type,
-        $passive = false,
-        $durable = false,
-        $auto_delete = true,
-        $internal = false,
-        $nowait = false,
-        $arguments = null,
-        $ticket = null
+        string $exchange,
+        string $type,
+        bool $passive = false,
+        bool $durable = false,
+        bool $autoDelete = true,
+        bool $internal = false,
+        bool $nowait = false,
+        array $arguments = [],
+        ?int $ticket = null
     ) {
         return $this->getChannel()->exchange_declare(
             $exchange,
             $type,
             $passive,
             $durable,
-            $auto_delete,
+            $autoDelete,
             $internal,
             $nowait,
             $arguments,
@@ -209,28 +220,28 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * @param bool $passive
      * @param bool $durable
      * @param bool $exclusive
-     * @param bool $auto_delete
+     * @param bool $autoDelete
      * @param bool $nowait
      * @param array $arguments
-     * @param int $ticket
+     * @param int|null $ticket
      * @return mixed|null
      */
     public function declareQueue(
-        $queue = '',
-        $passive = false,
-        $durable = false,
-        $exclusive = false,
-        $auto_delete = true,
-        $nowait = false,
-        $arguments = null,
-        $ticket = null
+        string $queue = '',
+        bool $passive = false,
+        bool $durable = false,
+        bool $exclusive = false,
+        bool $autoDelete = true,
+        bool $nowait = false,
+        array $arguments = [],
+        ?int $ticket = null
     ) {
         return $this->getChannel()->queue_declare(
             $queue,
             $passive,
             $durable,
             $exclusive,
-            $auto_delete,
+            $autoDelete,
             $nowait,
             $arguments,
             $ticket
@@ -253,24 +264,24 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      *
      * @param string $queue
      * @param string $exchange
-     * @param string $routing_key
+     * @param string $routingKey
      * @param bool $nowait
      * @param array $arguments
-     * @param int $ticket
+     * @param int|null $ticket
      * @return mixed|null
      */
     public function bindQueueToExchange(
-        $queue,
-        $exchange,
-        $routing_key = '',
-        $nowait = false,
-        $arguments = null,
-        $ticket = null
+        string $queue,
+        string $exchange,
+        string $routingKey = '',
+        bool $nowait = false,
+        array $arguments = [],
+        ?int $ticket = null
     ) {
         return $this->getChannel()->queue_bind(
             $queue,
             $exchange,
-            $routing_key,
+            $routingKey,
             $nowait,
             $arguments,
             $ticket
@@ -282,9 +293,9 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      *
      * @param string $queue
      */
-    public function scheduleQueueCleanup($queue)
+    public function scheduleQueueCleanup(string $queue): void
     {
-        if (!in_array($queue, $this->config['queues'])) {
+        if (!in_array($queue, $this->config['queues'], true)) {
             $this->config['queues'][] = $queue;
         }
     }
@@ -305,7 +316,7 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * @param string $queue
      * @param string $text
      */
-    public function seeMessageInQueueContainsText($queue, $text)
+    public function seeMessageInQueueContainsText(string $queue, string $text): void
     {
         $msg = $this->getChannel()->basic_get($queue);
         if (!$msg) {
@@ -325,9 +336,9 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      *
      * @return int
      */
-    public function _countMessage($queue)
+    public function countMessage(string $queue): int
     {
-        list($queue, $messageCount) = $this->getChannel()->queue_declare($queue, true);
+        [$queue, $messageCount] = $this->getChannel()->queue_declare($queue, true);
         return $messageCount;
     }
 
@@ -344,9 +355,9 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * @param string $queue
      * @param int $expected
      */
-    public function seeNumberOfMessagesInQueue($queue, $expected)
+    public function seeNumberOfMessagesInQueue(string $queue, int $expected): void
     {
-        $messageCount = $this->_countMessage($queue);
+        $messageCount = $this->countMessage($queue);
         $this->assertEquals($expected, $messageCount);
     }
 
@@ -362,11 +373,10 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * ```
      *
      * @param string $queue
-     * @param int $expected
      */
-    public function seeQueueIsEmpty($queue)
+    public function seeQueueIsEmpty(string $queue): void
     {
-        $messageCount = $this->_countMessage($queue);
+        $messageCount = $this->countMessage($queue);
         $this->assertEquals(0, $messageCount);
     }
 
@@ -382,9 +392,9 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      *
      * @param string $queue
      */
-    public function dontSeeQueueIsEmpty($queue)
+    public function dontSeeQueueIsEmpty(string $queue): void
     {
-        $messageCount = $this->_countMessage($queue);
+        $messageCount = $this->countMessage($queue);
         $this->assertNotEquals(0, $messageCount);
     }
 
@@ -398,12 +408,11 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * ```
      *
      * @param string $queue
-     * @return \PhpAmqpLib\Message\AMQPMessage
+     * @return AMQPMessage|null
      */
-    public function grabMessageFromQueue($queue)
+    public function grabMessageFromQueue(string $queue): ?AMQPMessage
     {
-        $message = $this->getChannel()->basic_get($queue);
-        return $message;
+        return $this->getChannel()->basic_get($queue);
     }
 
     /**
@@ -416,10 +425,11 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * ```
      *
      * @param string $queueName
+     * @throws ModuleException
      */
-    public function purgeQueue($queueName = '')
+    public function purgeQueue(string $queueName = ''): void
     {
-        if (! in_array($queueName, $this->config['queues'])) {
+        if (!in_array($queueName, $this->config['queues'], true)) {
             throw new ModuleException(__CLASS__, "'$queueName' doesn't exist in queues config list");
         }
 
@@ -434,16 +444,15 @@ class AMQP extends CodeceptionModule implements RequiresPackage
      * $I->purgeAllQueues();
      * ?>
      * ```
+     * @throws ModuleException
+     * @throws AMQPProtocolChannelException
      */
-    public function purgeAllQueues()
+    public function purgeAllQueues(): void
     {
         $this->cleanup();
     }
 
-    /**
-     * @return \PhpAmqpLib\Channel\AMQPChannel
-     */
-    protected function getChannel()
+    protected function getChannel(): AMQPChannel
     {
         if ($this->config['single_channel'] && $this->channelId === null) {
             $this->channelId = $this->connection->get_free_channel_id();
@@ -451,7 +460,11 @@ class AMQP extends CodeceptionModule implements RequiresPackage
         return $this->connection->channel($this->channelId);
     }
 
-    protected function cleanup()
+    /**
+     * @throws AMQPProtocolChannelException
+     * @throws ModuleException
+     */
+    protected function cleanup(): void
     {
         if (!isset($this->config['queues'])) {
             throw new ModuleException(__CLASS__, "please set queues for cleanup");
