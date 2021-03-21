@@ -9,6 +9,8 @@ jobs:
     services:
       rabbitmq:
         image: rabbitmq
+        ports:
+          - 5672:5672
 
     strategy:
       matrix:
