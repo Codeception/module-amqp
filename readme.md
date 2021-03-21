@@ -15,7 +15,7 @@ composer require "codeception/module-amqp" --dev
 
 ## Documentation
 
-<a href="documentation.md">Look at documentation.md file</a>
+See [the module documentation](https://codeception.com/docs/modules/AMQP).
 
 ## License
 
