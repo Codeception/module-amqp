@@ -2,7 +2,6 @@
 namespace Codeception\Module;
 
 use Codeception\Exception\ModuleException;
-use Codeception\Lib\Interfaces\RequiresPackage;
 use Codeception\Module as CodeceptionModule;
 use Codeception\TestInterface;
 use Exception;
@@ -46,7 +45,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  *
  * * connection - AMQPStreamConnection - current connection
  */
-class AMQP extends CodeceptionModule implements RequiresPackage
+class AMQP extends CodeceptionModule
 {
     protected $config = [
         'host'           => 'localhost',
@@ -70,11 +69,6 @@ class AMQP extends CodeceptionModule implements RequiresPackage
     protected $channelId;
 
     protected $requiredFields = ['host', 'username', 'password', 'vhost'];
-
-    public function _requires()
-    {
-        return ['PhpAmqpLib\Connection\AMQPStreamConnection' => '"php-amqplib/php-amqplib": "~2.4"'];
-    }
 
     public function _initialize()
     {
