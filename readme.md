@@ -7,6 +7,10 @@ An AMQP module for Codeception.
 [![Total Downloads](https://poser.pugx.org/codeception/module-amqp/downloads)](https://packagist.org/packages/codeception/module-amqp)
 [![License](https://poser.pugx.org/codeception/module-amqp/license)](/LICENSE)
 
+## Requirements
+
+* `PHP 7.1` or higher.
+
 ## Installation
 
 ```

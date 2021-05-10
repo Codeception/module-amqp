@@ -1,28 +1,37 @@
 <?php
 
+declare(strict_types=1);
 
-class AMQPTest extends \Codeception\PHPUnit\TestCase
+use Codeception\Lib\ModuleContainer;
+use Codeception\PHPUnit\TestCase;
+use Codeception\Util\Stub;
+
+final class AMQPTest extends TestCase
 {
-    protected $config = array(
+    /**
+     * @var array
+     */
+    protected $config = [
         'host'     => 'localhost',
         'username' => 'guest',
         'password' => 'guest',
         'port' => '5672',
         'vhost'    => '/',
         'cleanup' => false,
-        'queues' => array('queue1')
-    );
+        'queues' => ['queue1']
+    ];
 
     /**
      * @var \Codeception\Module\AMQP
      */
-    protected $module = null;
+    protected $module;
 
     public function _setUp()
     {
-        $container = \Codeception\Util\Stub::make('Codeception\Lib\ModuleContainer');
+        $container = Stub::make(ModuleContainer::class);
         $this->module = new \Codeception\Module\AMQP($container);
         $this->module->_setConfig($this->config);
+        
         $res = @stream_socket_client('tcp://localhost:5672');
         if ($res === false) {
             $this->markTestSkipped('AMQP is not running');
