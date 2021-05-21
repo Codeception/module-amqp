@@ -369,13 +369,13 @@ class AMQP extends Module implements RequiresPackage
      * $I->purgeQueue('queue.emails');
      * ```
      */
-    public function purgeQueue(string $queueName = ''): void
+    public function purgeQueue(string $queue = ''): void
     {
-        if (! in_array($queueName, $this->config['queues'])) {
-            throw new ModuleException(__CLASS__, "'{$queueName}' doesn't exist in queues config list");
+        if (! in_array($queue, $this->config['queues'])) {
+            throw new ModuleException(__CLASS__, "'{$queue}' doesn't exist in queues config list");
         }
 
-        $this->getChannel()->queue_purge($queueName, true);
+        $this->getChannel()->queue_purge($queue, true);
     }
 
     /**
