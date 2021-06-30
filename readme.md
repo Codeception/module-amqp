@@ -17,6 +17,8 @@ composer require "codeception/module-amqp" --dev
 
 See [the module documentation](https://codeception.com/docs/modules/AMQP).
 
+[Changelog](https://github.com/Codeception/module-amqp/releases)
+
 ## License
 
 `Codeception Module AMQP` is open-sourced software licensed under the [MIT](/LICENSE) License.
