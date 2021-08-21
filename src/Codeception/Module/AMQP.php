@@ -317,7 +317,7 @@ class AMQP extends CodeceptionModule implements RequiresPackage
         $this->debugSection("Message", $msg->body);
         $this->assertStringContainsString($text, $msg->body);
 
-        $msg->nack(true);
+        $msg->ack();
     }
 
     /**
