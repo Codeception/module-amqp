@@ -310,6 +310,8 @@ class AMQP extends CodeceptionModule
         }
         $this->debugSection("Message", $msg->body);
         $this->assertStringContainsString($text, $msg->body);
+
+        $msg->ack();
     }
 
     /**

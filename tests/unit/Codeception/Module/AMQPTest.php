@@ -37,6 +37,7 @@ class AMQPTest extends \Codeception\PHPUnit\TestCase
     {
         $this->module->pushToQueue('queue1', 'hello');
         $this->module->seeMessageInQueueContainsText('queue1', 'hello');
+        $this->module->seeQueueIsEmpty('queue1');
     }
 
     public function testCountQueue()
