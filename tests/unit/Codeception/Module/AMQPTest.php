@@ -3,15 +3,13 @@
 declare(strict_types=1);
 
 use Codeception\Lib\ModuleContainer;
+use Codeception\Module\AMQP;
 use Codeception\PHPUnit\TestCase;
 use Codeception\Util\Stub;
 
 final class AMQPTest extends TestCase
 {
-    /**
-     * @var array
-     */
-    protected $config = [
+    protected array $config = [
         'host'     => 'localhost',
         'username' => 'guest',
         'password' => 'guest',
@@ -21,17 +19,14 @@ final class AMQPTest extends TestCase
         'queues' => ['queue1']
     ];
 
-    /**
-     * @var \Codeception\Module\AMQP
-     */
-    protected $module;
+    protected AMQP $module;
 
     public function _setUp()
     {
         $container = Stub::make(ModuleContainer::class);
-        $this->module = new \Codeception\Module\AMQP($container);
+        $this->module = new AMQP($container);
         $this->module->_setConfig($this->config);
-        
+
         $res = @stream_socket_client('tcp://localhost:5672');
         if ($res === false) {
             $this->markTestSkipped('AMQP is not running');

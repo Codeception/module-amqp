@@ -65,15 +65,9 @@ class AMQP extends Module implements RequiresPackage
         'queues'         => []
     ];
 
-    /**
-     * @var AMQPStreamConnection
-     */
-    public $connection;
+    public ?AMQPStreamConnection $connection = null;
 
-    /**
-     * @var int
-     */
-    protected $channelId;
+    protected ?int $channelId = null;
 
     /**
      * @var string[]
@@ -82,7 +76,7 @@ class AMQP extends Module implements RequiresPackage
 
     public function _requires()
     {
-        return [\PhpAmqpLib\Connection\AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.4"'];
+        return [AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.4"'];
     }
 
     public function _initialize()
@@ -95,8 +89,8 @@ class AMQP extends Module implements RequiresPackage
 
         try {
             $this->connection = new AMQPStreamConnection($host, $port, $username, $password, $vhost);
-        } catch (Exception $e) {
-            throw new ModuleException(__CLASS__, $e->getMessage() . ' while establishing connection to MQ server');
+        } catch (Exception $exception) {
+            throw new ModuleException(__CLASS__, $exception->getMessage() . ' while establishing connection to MQ server');
         }
     }
 
@@ -162,7 +156,7 @@ class AMQP extends Module implements RequiresPackage
      * )
      * ```
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function declareExchange(
         string $exchange,
@@ -200,7 +194,7 @@ class AMQP extends Module implements RequiresPackage
      * )
      * ```
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function declareQueue(
         string $queue = '',
@@ -238,7 +232,7 @@ class AMQP extends Module implements RequiresPackage
      * )
      * ```
      *
-     * @return mixed|null
+     * @return mixed
      */
     public function bindQueueToExchange(
         string $queue,
@@ -283,12 +277,14 @@ class AMQP extends Module implements RequiresPackage
     public function seeMessageInQueueContainsText(string $queue, string $text): void
     {
         $msg = $this->getChannel()->basic_get($queue);
-        if ($msg === null) {
+        if (!$msg instanceof AMQPMessage) {
             $this->fail("Message was not received");
         }
+
         if (!$msg instanceof AMQPMessage) {
             $this->fail("Received message is not format of AMQPMessage");
         }
+
         $this->debugSection("Message", $msg->body);
         $this->assertStringContainsString($text, $msg->body);
 
@@ -371,13 +367,13 @@ class AMQP extends Module implements RequiresPackage
      * $I->purgeQueue('queue.emails');
      * ```
      */
-    public function purgeQueue(string $queue = ''): void
+    public function purgeQueue(string $queueName = ''): void
     {
-        if (! in_array($queue, $this->config['queues'])) {
-            throw new ModuleException(__CLASS__, "'{$queue}' doesn't exist in queues config list");
+        if (! in_array($queueName, $this->config['queues'])) {
+            throw new ModuleException(__CLASS__, "'{$queueName}' doesn't exist in queues config list");
         }
 
-        $this->getChannel()->queue_purge($queue, true);
+        $this->getChannel()->queue_purge($queueName, true);
     }
 
     /**
@@ -398,6 +394,7 @@ class AMQP extends Module implements RequiresPackage
         if ($this->config['single_channel'] && $this->channelId === null) {
             $this->channelId = $this->connection->get_free_channel_id();
         }
+
         return $this->connection->channel($this->channelId);
     }
 
@@ -406,16 +403,18 @@ class AMQP extends Module implements RequiresPackage
         if (!isset($this->config['queues'])) {
             throw new ModuleException(__CLASS__, "please set queues for cleanup");
         }
+
         if (!$this->connection) {
             return;
         }
+
         foreach ($this->config['queues'] as $queue) {
             try {
                 $this->getChannel()->queue_purge($queue);
-            } catch (AMQPProtocolChannelException $e) {
+            } catch (AMQPProtocolChannelException $exception) {
                 // ignore if exchange/queue doesn't exist and rethrow exception if it's something else
-                if ($e->getCode() !== 404) {
-                    throw $e;
+                if ($exception->getCode() !== 404) {
+                    throw $exception;
                 }
             }
         }
