@@ -108,10 +108,8 @@ class AMQP extends Module implements RequiresPackage
      * $I->pushToExchange('exchange.emails', new AMQPMessage('Thanks!'));
      * $I->pushToExchange('exchange.emails', new AMQPMessage('Thanks!'), 'severity');
      * ```
-     *
-     * @param string|AMQPMessage $message
      */
-    public function pushToExchange(string $exchange, $message, string $routing_key = null): void
+    public function pushToExchange(string $exchange, string|AMQPMessage $message, string $routing_key = null): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
@@ -127,10 +125,8 @@ class AMQP extends Module implements RequiresPackage
      * $I->pushToQueue('queue.jobs', 'create user');
      * $I->pushToQueue('queue.jobs', new AMQPMessage('create'));
      * ```
-     *
-     * @param string|AMQPMessage $message
      */
-    public function pushToQueue(string $queue, $message): void
+    public function pushToQueue(string $queue, string|AMQPMessage $message): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
