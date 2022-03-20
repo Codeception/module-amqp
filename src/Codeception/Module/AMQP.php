@@ -51,10 +51,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  */
 class AMQP extends Module implements RequiresPackage
 {
-    /**
-     * @var array
-     */
-    protected $config = [
+    protected array $config = [
         'host'           => 'localhost',
         'username'       => 'guest',
         'password'       => 'guest',
@@ -72,14 +69,14 @@ class AMQP extends Module implements RequiresPackage
     /**
      * @var string[]
      */
-    protected $requiredFields = ['host', 'username', 'password', 'vhost'];
+    protected array $requiredFields = ['host', 'username', 'password', 'vhost'];
 
-    public function _requires()
+    public function _requires(): array
     {
         return [AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.4"'];
     }
 
-    public function _initialize()
+    public function _initialize(): void
     {
         $host = $this->config['host'];
         $port = $this->config['port'];
@@ -94,7 +91,7 @@ class AMQP extends Module implements RequiresPackage
         }
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestInterface $test): void
     {
         if ($this->config['cleanup']) {
             $this->cleanup();
@@ -111,10 +108,8 @@ class AMQP extends Module implements RequiresPackage
      * $I->pushToExchange('exchange.emails', new AMQPMessage('Thanks!'));
      * $I->pushToExchange('exchange.emails', new AMQPMessage('Thanks!'), 'severity');
      * ```
-     *
-     * @param string|AMQPMessage $message
      */
-    public function pushToExchange(string $exchange, $message, string $routing_key = null): void
+    public function pushToExchange(string $exchange, string|AMQPMessage $message, string $routing_key = null): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
@@ -130,10 +125,8 @@ class AMQP extends Module implements RequiresPackage
      * $I->pushToQueue('queue.jobs', 'create user');
      * $I->pushToQueue('queue.jobs', new AMQPMessage('create'));
      * ```
-     *
-     * @param string|AMQPMessage $message
      */
-    public function pushToQueue(string $queue, $message): void
+    public function pushToQueue(string $queue, string|AMQPMessage $message): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
