@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Codeception\Lib\ModuleContainer;
 use Codeception\Module\AMQP;
 use Codeception\PHPUnit\TestCase;
-use Codeception\Util\Stub;
+use Codeception\Stub;
 
 final class AMQPTest extends TestCase
 {

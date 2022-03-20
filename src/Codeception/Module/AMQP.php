@@ -51,10 +51,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  */
 class AMQP extends Module implements RequiresPackage
 {
-    /**
-     * @var array
-     */
-    protected $config = [
+    protected array $config = [
         'host'           => 'localhost',
         'username'       => 'guest',
         'password'       => 'guest',
@@ -72,14 +69,14 @@ class AMQP extends Module implements RequiresPackage
     /**
      * @var string[]
      */
-    protected $requiredFields = ['host', 'username', 'password', 'vhost'];
+    protected array $requiredFields = ['host', 'username', 'password', 'vhost'];
 
-    public function _requires()
+    public function _requires(): array
     {
         return [AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.4"'];
     }
 
-    public function _initialize()
+    public function _initialize(): void
     {
         $host = $this->config['host'];
         $port = $this->config['port'];
@@ -94,7 +91,7 @@ class AMQP extends Module implements RequiresPackage
         }
     }
 
-    public function _before(TestInterface $test)
+    public function _before(TestInterface $test): void
     {
         if ($this->config['cleanup']) {
             $this->cleanup();
