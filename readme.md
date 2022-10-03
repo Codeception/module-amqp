@@ -9,7 +9,7 @@ An AMQP module for Codeception.
 
 ## Requirements
 
-* `PHP 7.4` or higher.
+* `Codeception 5` or higher.
 
 ## Installation
 

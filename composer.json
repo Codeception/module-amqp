@@ -15,9 +15,8 @@
 	],
 	"minimum-stability": "RC",
 	"require": {
-		"php": "^8.0",
-		"codeception/codeception": "^5.0.0-RC1",
-		"php-amqplib/php-amqplib": "^2.10 | ^3.0"
+		"codeception/codeception": "^5",
+		"php-amqplib/php-amqplib": "^2.10 | ^3"
 	},
 	"autoload": {
 		"classmap": [
