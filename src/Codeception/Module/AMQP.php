@@ -11,6 +11,7 @@ use Codeception\TestInterface;
 use Exception;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Connection\AMQPSSLConnection;
 use PhpAmqpLib\Exception\AMQPProtocolChannelException;
 use PhpAmqpLib\Message\AMQPMessage;
 
@@ -59,10 +60,17 @@ class AMQP extends Module implements RequiresPackage
         'vhost'          => '/',
         'cleanup'        => true,
         'single_channel' => false,
+        'ssl_enabled'    => false,
+        'ssl_options'    => [
+            'capath' => '/etc/ssl/certs',
+            'cafile' => '/etc/ssl/certs/ca-certificates.crt',
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+        ],
         'queues'         => []
     ];
 
-    public ?AMQPStreamConnection $connection = null;
+    public AMQPStreamConnection | AMQPSSLConnection | null $connection = null;
 
     protected ?int $channelId = null;
 
@@ -73,7 +81,10 @@ class AMQP extends Module implements RequiresPackage
 
     public function _requires(): array
     {
-        return [AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.4"'];
+        return [
+            AMQPStreamConnection::class => '"php-amqplib/php-amqplib": "~2.4"',
+            AMQPSSLConnection::class => '"php-amqplib/php-amqplib": "~2.4"'
+        ];
     }
 
     public function _initialize(): void
@@ -83,9 +94,13 @@ class AMQP extends Module implements RequiresPackage
         $username = $this->config['username'];
         $password = $this->config['password'];
         $vhost = $this->config['vhost'];
+        $ssl_enabled = $this->config['ssl_enabled'];
+        $ssl_options = $this->config['ssl_options'];
 
         try {
-            $this->connection = new AMQPStreamConnection($host, $port, $username, $password, $vhost);
+            $this->connection = $ssl_enabled
+                ? new AMQPSSLConnection($host, $port, $username, $password, $vhost, $ssl_options)
+                : new AMQPStreamConnection($host, $port, $username, $password, $vhost);
         } catch (Exception $exception) {
             throw new ModuleException(__CLASS__, $exception->getMessage() . ' while establishing connection to MQ server');
         }
