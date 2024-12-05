@@ -109,7 +109,7 @@ class AMQP extends Module implements RequiresPackage
      * $I->pushToExchange('exchange.emails', new AMQPMessage('Thanks!'), 'severity');
      * ```
      */
-    public function pushToExchange(string $exchange, string|AMQPMessage $message, string $routing_key = null): void
+    public function pushToExchange(string $exchange, string|AMQPMessage $message, ?string $routing_key = null): void
     {
         $message = $message instanceof AMQPMessage
             ? $message
@@ -159,8 +159,8 @@ class AMQP extends Module implements RequiresPackage
         bool $auto_delete = true,
         bool $internal = false,
         bool $nowait = false,
-        array $arguments = null,
-        int $ticket = null
+        ?array $arguments = null,
+        ?int $ticket = null
     ) {
         return $this->getChannel()->exchange_declare(
             $exchange,
@@ -196,8 +196,8 @@ class AMQP extends Module implements RequiresPackage
         bool $exclusive = false,
         bool $auto_delete = true,
         bool $nowait = false,
-        array $arguments = null,
-        int $ticket = null
+        ?array $arguments = null,
+        ?int $ticket = null
     ): ?array {
         return $this->getChannel()->queue_declare(
             $queue,
@@ -232,8 +232,8 @@ class AMQP extends Module implements RequiresPackage
         string $exchange,
         string $routing_key = '',
         bool $nowait = false,
-        array $arguments = null,
-        int $ticket = null
+        ?array $arguments = null,
+        ?int $ticket = null
     ) {
         return $this->getChannel()->queue_bind(
             $queue,
