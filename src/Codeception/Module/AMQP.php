@@ -31,6 +31,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  * * cleanup: true - defined queues will be purged before running every test.
  * * queues: [mail, twitter] - queues to cleanup
  * * single_channel - create and use only one channel during test execution
+ * * reconnect - reconnects before each test to drop unused open channels
  *
  * ### Example
  *
@@ -44,6 +45,7 @@ use PhpAmqpLib\Message\AMQPMessage;
  *                 vhost: '/'
  *                 queues: [queue1, queue2]
  *                 single_channel: false
+ *                 reconnect: false
  *
  * ## Public Properties
  *
@@ -59,6 +61,7 @@ class AMQP extends Module implements RequiresPackage
         'vhost'          => '/',
         'cleanup'        => true,
         'single_channel' => false,
+        'reconnect'      => false,
         'queues'         => []
     ];
 
@@ -95,6 +98,10 @@ class AMQP extends Module implements RequiresPackage
     {
         if ($this->config['cleanup']) {
             $this->cleanup();
+        }
+
+        if ($this->config['reconnect']) {
+            $this->getChannel()->getConnection()->reconnect();
         }
     }
 
