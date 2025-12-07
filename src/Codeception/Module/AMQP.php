@@ -13,6 +13,7 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPProtocolChannelException;
 use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 
 /**
  * This module interacts with message broker software that implements
@@ -166,7 +167,7 @@ class AMQP extends Module implements RequiresPackage
         bool $auto_delete = true,
         bool $internal = false,
         bool $nowait = false,
-        ?array $arguments = null,
+        array|AMQPTable|null $arguments = null,
         ?int $ticket = null
     ) {
         return $this->getChannel()->exchange_declare(
@@ -203,7 +204,7 @@ class AMQP extends Module implements RequiresPackage
         bool $exclusive = false,
         bool $auto_delete = true,
         bool $nowait = false,
-        ?array $arguments = null,
+        array|AMQPTable|null $arguments = null,
         ?int $ticket = null
     ): ?array {
         return $this->getChannel()->queue_declare(
@@ -239,7 +240,7 @@ class AMQP extends Module implements RequiresPackage
         string $exchange,
         string $routing_key = '',
         bool $nowait = false,
-        ?array $arguments = null,
+        array|AMQPTable|null $arguments = null,
         ?int $ticket = null
     ) {
         return $this->getChannel()->queue_bind(
