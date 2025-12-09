@@ -100,7 +100,8 @@ class AMQP extends Module implements RequiresPackage
             $this->cleanup();
         }
 
-        if ($this->config['reconnect']) {
+        // Nullsafe can be removed if the class is made final
+        if ($this->config['reconnect'] ?? false) {
             $this->getChannel()->getConnection()->reconnect();
         }
     }
