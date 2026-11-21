@@ -33,8 +33,6 @@ final class AMQPTest extends TestCase
         }
 
         $this->module->_initialize();
-        $connection = $this->module->connection;
-        $connection->channel()->queue_declare('queue1');
     }
 
     public function testPushToQueue()
@@ -42,6 +40,18 @@ final class AMQPTest extends TestCase
         $this->module->pushToQueue('queue1', 'hello');
         $this->module->seeMessageInQueueContainsText('queue1', 'hello');
         $this->module->seeQueueIsEmpty('queue1');
+    }
+
+    public function testPushToNonExistingQueue()
+    {
+        $queue = 'test-non-existing-queue';
+        $channel = $this->module->connection->channel();
+        $channel->queue_delete($queue);
+
+        $this->module->pushToQueue($queue, 'hello');
+        $this->module->seeMessageInQueueContainsText($queue, 'hello');
+
+        $channel->queue_delete($queue);
     }
 
     public function testCountQueue()
