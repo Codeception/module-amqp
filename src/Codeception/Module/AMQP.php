@@ -128,6 +128,10 @@ class AMQP extends Module implements RequiresPackage
     /**
      * Sends message to queue
      *
+     * If the queue does not exist yet, it is created. On RabbitMQ 4.3+ it is created as a durable,
+     * non-auto-delete queue, because transient non-exclusive queues are not permitted by default anymore.
+     * On older versions it is created as a transient queue.
+     *
      * ``` php
      * <?php
      * $I->pushToQueue('queue.jobs', 'create user');
@@ -140,7 +144,12 @@ class AMQP extends Module implements RequiresPackage
             ? $message
             : new AMQPMessage($message);
 
-        $this->getChannel()->queue_declare($queue);
+        if ($this->isRabbitMq43OrNewer()) {
+            $this->declareQueueIfMissing($queue);
+        } else {
+            $this->getChannel()->queue_declare($queue);
+        }
+
         $this->getChannel()->basic_publish($message, '', $queue);
     }
 
@@ -397,6 +406,32 @@ class AMQP extends Module implements RequiresPackage
         }
 
         return $this->connection->channel($this->channelId);
+    }
+
+    private function isRabbitMq43OrNewer(): bool
+    {
+        $version = $this->connection->getServerProperties()['version'][1] ?? null;
+        if (!is_string($version)) {
+            return false;
+        }
+
+        // Compare major and minor only, so pre-releases like "4.3.0-rc.1" are matched as well
+        [$major, $minor] = sscanf($version, '%d.%d');
+
+        return $major > 4 || ($major === 4 && $minor >= 3);
+    }
+
+    private function declareQueueIfMissing(string $queue): void
+    {
+        try {
+            $this->getChannel()->queue_declare($queue, true);
+        } catch (AMQPProtocolChannelException $exception) {
+            if ($exception->getCode() !== 404) {
+                throw $exception;
+            }
+
+            $this->getChannel()->queue_declare($queue, false, true, false, false);
+        }
     }
 
     protected function cleanup(): void

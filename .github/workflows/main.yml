@@ -8,13 +8,14 @@ jobs:
     
     services:
       rabbitmq:
-        image: rabbitmq:3
+        image: rabbitmq:${{ matrix.rabbitmq }}
         ports:
           - 5672:5672
 
     strategy:
       matrix:
         php: [8.2, 8.3, 8.4, 8.5, 8.6]
+        rabbitmq: [3, 4]
 
     steps:
     - name: Checkout code
