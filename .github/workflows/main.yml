@@ -8,35 +8,23 @@ jobs:
     
     services:
       rabbitmq:
-        image: rabbitmq
+        image: rabbitmq:3
         ports:
           - 5672:5672
 
     strategy:
       matrix:
-        php: [8.2, 8.3, 8.4, 8.5]
+        php: [8.2, 8.3, 8.4, 8.5, 8.6]
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
 
-    - name: Setup PHP != 8.5
-      if: ${{ matrix.php != '8.5' }}
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php }}
         coverage: none
-
-    - name: Setup PHP 8.5
-      if: ${{ matrix.php == '8.5' }}
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php }}
-        coverage: none
-        # this ini directive seems to be off by default in PHP 8.5
-        # see https://github.com/php/php-src/issues/20279
-        # enable it because codeception relies on it.
-        ini-values: register_argc_argv=1
 
     - name: Validate composer.json and composer.lock
       run: composer validate
